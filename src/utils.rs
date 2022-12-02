@@ -10,3 +10,11 @@ where
     let file = File::open(filename)?;
     Ok(io::BufReader::new(file).lines())
 }
+
+pub fn get_path(day: &'static str, test: bool) -> String {
+    if !test {
+        return format!("./inputs/{}.txt", day);
+    } else {
+        return format!("./inputs/{}.sample.txt", day);
+    }
+}
