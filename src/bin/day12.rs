@@ -44,8 +44,8 @@ fn a_star<H: Fn((i32, i32)) -> i32>(
     h: H,
     width: i32,
     height: i32,
-    square_heights: HashMap<(i32, i32), i32>,
-) -> Vec<(i32, i32)> {
+    square_heights: &HashMap<(i32, i32), i32>,
+) -> Option<Vec<(i32, i32)>> {
     // The set of discovered nodes that may need to be (re-)expanded.
     // Initially, only the start node is known.
     let mut open_set = BinaryHeap::new();
@@ -76,7 +76,7 @@ fn a_star<H: Fn((i32, i32)) -> i32>(
         open_set2.remove(&current);
 
         if current == goal {
-            return reconstruct_path(&came_from, &current);
+            return Some(reconstruct_path(&came_from, &current));
         }
 
         // for each neighbor of current
@@ -113,7 +113,7 @@ fn a_star<H: Fn((i32, i32)) -> i32>(
         }
     }
 
-    unreachable!("Failure")
+    None
 }
 
 fn part1(content: &str) -> i32 {
@@ -146,18 +146,59 @@ fn part1(content: &str) -> i32 {
     let heuristic = |node: (i32, i32)| ((node.0 - goal.0).abs() + (node.1 - goal.1).abs());
 
     // Use A* to find shortest path from S to E
-    let shortest_path = a_star(start, goal, heuristic, width, height, square_heights);
+    let shortest_path = a_star(start, goal, heuristic, width, height, &square_heights).unwrap();
     shortest_path.len() as i32 - 1
 }
 
 fn part2(content: &str) -> i32 {
-    0
+    // Parse the input, this time keeping an array of all possible start squares
+    let mut square_heights: HashMap<(i32, i32), i32> = HashMap::new();
+    let mut start_squares = Vec::new();
+    let mut goal = (0, 0);
+    let height = content.lines().count() as i32;
+    let width = content.lines().next().unwrap().len() as i32;
+    for (y, line) in content.lines().enumerate() {
+        for (x, char) in line.chars().enumerate() {
+            let position = (x as i32, y as i32);
+            match char {
+                'a' => {
+                    start_squares.push(position);
+                    square_heights.insert(position, char as i32);
+                }
+                'E' => {
+                    goal = position;
+                    square_heights.insert(position, 'z' as i32);
+                }
+                _ => {
+                    square_heights.insert(position, char as i32);
+                }
+            };
+        }
+    }
+
+    // Heuristic function using Manhattan Distance to the goal square
+    let heuristic = |node: (i32, i32)| ((node.0 - goal.0).abs() + (node.1 - goal.1).abs());
+
+    // Use A* to find shortest path from each start square to E, return the lowest
+    // Not very efficient but still completes in a few seconds on a 5 year old laptop with an i5
+    let mut overall_shortest_path_length = width * height;
+    for start in start_squares {
+        match a_star(start, goal, heuristic, width, height, &square_heights) {
+            Some(shortest_path) => {
+                overall_shortest_path_length =
+                    overall_shortest_path_length.min(shortest_path.len() as i32 - 1);
+            }
+            None => {}
+        }
+    }
+
+    overall_shortest_path_length
 }
 
 fn main() {
     let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
     println!("part1 {}", part1(&content)); // 425
-    println!("part2 {}", part2(&content)); //
+    println!("part2 {}", part2(&content)); // 418
 }
 
 #[cfg(test)]
@@ -171,9 +212,9 @@ mod tests {
         assert_eq!(part1(&content), 31);
     }
 
-    // #[test]
-    // fn test_part_2() {
-    //     let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-    //     assert_eq!(part2(&content), 0);
-    // }
+    #[test]
+    fn test_part_2() {
+        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
+        assert_eq!(part2(&content), 29);
+    }
 }
