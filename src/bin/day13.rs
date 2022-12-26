@@ -1,5 +1,5 @@
 use aoc2022::utils;
-use std::fs::read_to_string;
+use std::{cmp::Ordering, fs::read_to_string};
 
 use crate::Item::*;
 
@@ -111,6 +111,36 @@ fn part1(content: &str) -> i32 {
     sum_of_correct_pair_indices
 }
 
+fn part2(content: &str) -> i32 {
+    // Parse the input packets
+    let mut packets: Vec<Vec<Item>> = Vec::new();
+    let string_pairs = content.split("\n\n");
+    for string_pair in string_pairs {
+        let parsed: (Vec<Item>, Vec<Item>) = parse_pair(string_pair);
+        packets.push(parsed.0);
+        packets.push(parsed.1);
+    }
+
+    // Add divider packets
+    let divider1 = vec![List(vec![Number(2)])]; // [[2]]
+    let divider2 = vec![List(vec![Number(6)])]; // [[6]]
+    packets.push(divider1.clone());
+    packets.push(divider2.clone());
+
+    // Sort packets
+    packets.sort_by(|a, b| match in_right_order(a.clone(), b.clone()) {
+        Some(true) => Ordering::Less,
+        Some(false) => Ordering::Greater,
+        None => Ordering::Equal,
+    });
+
+    // Find the position of the dividers (starting at 1) and return their product
+    let p1 = packets.iter().position(|p| p == &divider1).unwrap() + 1;
+    let p2 = packets.iter().position(|p| p == &divider2).unwrap() + 1;
+
+    (p1 * p2) as i32
+}
+
 fn in_right_order(left: Vec<Item>, right: Vec<Item>) -> Option<bool> {
     let mut items_left = left.iter();
     let mut items_right = right.iter();
@@ -167,7 +197,7 @@ fn in_right_order(left: Vec<Item>, right: Vec<Item>) -> Option<bool> {
 fn main() {
     let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
     println!("part1 {}", part1(&content)); // 6076
-                                           // println!("part2\n{}\n", part2(&content));
+    println!("part2 {}", part2(&content)); // 24805
 }
 
 #[cfg(test)]
@@ -183,11 +213,11 @@ mod tests {
         assert_eq!(part1(&content), 13);
     }
 
-    // #[test]
-    // fn test_part_2() {
-    //     let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-    //     assert_eq!(part2(&content), 13);
-    // }
+    #[test]
+    fn test_part_2() {
+        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
+        assert_eq!(part2(&content), 140);
+    }
 
     #[test]
     fn test_1_correct() {
@@ -195,8 +225,8 @@ mod tests {
         [1,1,3,1,1]
         [1,1,5,1,1]
         */
-        let packet1 = vec![List([1, 1, 3, 1, 1].map(|n| Number(n)).to_vec())];
-        let packet2 = vec![List([1, 1, 5, 1, 1].map(|n| Number(n)).to_vec())];
+        let packet1 = [1, 1, 3, 1, 1].map(|n| Number(n)).to_vec();
+        let packet2 = [1, 1, 5, 1, 1].map(|n| Number(n)).to_vec();
 
         assert_eq!(in_right_order(packet1, packet2), Some(true));
     }
@@ -222,11 +252,8 @@ mod tests {
         [9]
         [[8,7,6]]
         */
-        let packet1 = vec![
-            List(vec![Number(9)]),
-            List([8, 7, 6].map(|n| Number(n)).to_vec()),
-        ];
-        let packet2 = vec![List(vec![Number(1)]), Number(4)];
+        let packet1 = vec![Number(9)];
+        let packet2 = vec![List([8, 7, 6].map(|n| Number(n)).to_vec())];
 
         assert_eq!(in_right_order(packet1, packet2), Some(false));
     }
@@ -254,8 +281,8 @@ mod tests {
         [7,7,7,7]
         [7,7,7]
         */
-        let packet1 = vec![List([7, 7, 7, 7].map(|n| Number(n)).to_vec())];
-        let packet2 = vec![List([7, 7, 7].map(|n| Number(n)).to_vec())];
+        let packet1 = [7, 7, 7, 7].map(|n| Number(n)).to_vec();
+        let packet2 = [7, 7, 7].map(|n| Number(n)).to_vec();
 
         assert_eq!(in_right_order(packet1, packet2), Some(false));
     }
@@ -318,6 +345,17 @@ mod tests {
         ];
 
         assert_eq!(in_right_order(packet1, packet2), Some(false));
+    }
+
+    #[test]
+    fn test_order_none() {
+        /*
+        [1]
+        [1]
+        */
+        let packet1 = vec![Number(1)];
+        let packet2 = vec![Number(1)];
+        assert_eq!(in_right_order(packet1, packet2), None);
     }
 
     #[test]
