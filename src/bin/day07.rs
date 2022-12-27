@@ -1,5 +1,5 @@
 use aoc2022::utils;
-use std::{collections::HashMap, fs::read_to_string};
+use std::fs::read_to_string;
 
 use crate::Node::*;
 
@@ -27,12 +27,13 @@ impl Node {
         }
     }
 
-    fn getsize(&self, dir_sizes: &mut Vec<(String, u32)>) -> u32 {
+    fn get_directory_sizes(&self, dir_sizes: &mut Vec<(String, u32)>) -> u32 {
+        // Recurses through nodes, storing every directory's calculated size in `dir_sizes`
         match self {
             Directory(_dirname, wrapped_vector) => {
                 let total_size = wrapped_vector
                     .iter()
-                    .map(|node| node.getsize(dir_sizes))
+                    .map(|node| node.get_directory_sizes(dir_sizes))
                     .sum();
                 dir_sizes.push((_dirname.to_string(), total_size));
                 total_size
@@ -89,7 +90,7 @@ fn part1(content: &str) -> u32 {
 
     // Gather directory sizes
     let mut dir_sizes: Vec<(String, u32)> = Vec::new();
-    root.getsize(&mut dir_sizes);
+    root.get_directory_sizes(&mut dir_sizes);
 
     // Return sum of directory sizes <= 100_000
     dir_sizes
@@ -99,15 +100,43 @@ fn part1(content: &str) -> u32 {
         .sum::<u32>()
 }
 
-fn part2(content: &str) -> i32 {
-    //
-    0
+fn part2(content: &str) -> u32 {
+    let total_diskspace: u32 = 70000000;
+    let required_free_diskspace: u32 = 30000000;
+
+    // Parse the file structure
+    let root = parse_terminal_output(content);
+
+    // Gather directory sizes
+    let mut dir_sizes: Vec<(String, u32)> = Vec::new();
+    root.get_directory_sizes(&mut dir_sizes);
+
+    // Determine used diskspace
+    let root_size = dir_sizes
+        .iter()
+        .filter(|(dirname, _dirsize)| dirname == "/")
+        .next()
+        .unwrap();
+
+    let current_free_diskspace = total_diskspace - root_size.1;
+
+    // Determine the diskspace to be freed, and the smallest directory to fulfil this
+    let extra_space_needed = required_free_diskspace - current_free_diskspace;
+    dir_sizes.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+
+    let directory_to_remove = dir_sizes
+        .iter()
+        .filter(|(_dirname, dirsize)| dirsize >= &extra_space_needed)
+        .next_back()
+        .unwrap();
+
+    directory_to_remove.1
 }
 
 fn main() {
     let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
     println!("part1 {}", part1(&content)); // 919137
-                                           // println!("part2 {}", part2(&content));
+    println!("part2 {}", part2(&content)); // 2877389
 }
 
 #[cfg(test)]
@@ -121,9 +150,9 @@ mod tests {
         assert_eq!(part1(&content), 95437);
     }
 
-    // #[test]
-    // fn test_part_2() {
-    //     let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-    //     assert_eq!(part2(&content), 140);
-    // }
+    #[test]
+    fn test_part_2() {
+        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
+        assert_eq!(part2(&content), 24933642);
+    }
 }
