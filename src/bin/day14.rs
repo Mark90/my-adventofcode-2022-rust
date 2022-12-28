@@ -81,6 +81,12 @@ fn part1(content: &str) -> i32 {
 }
 
 fn part2(content: &str) -> i32 {
+    // Takes a few seconds to complete because of the HashSet grid.
+    // In hindsight using a set of coordinates is a bad idea; while it provides instant lookups, there are also
+    // many inserts happening and those are very slow.
+    //
+    // The grid is small/concentrated enough for a 2-D array to fit in memory.
+    // Filling that with Air/Sand/Block values would then give both instant lookups and updates.
     let mut grid = parse_grid(content);
 
     let grid_ymax = grid.iter().map(|(_, y)| *y).max().unwrap();
