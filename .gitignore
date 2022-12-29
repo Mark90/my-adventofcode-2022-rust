@@ -1,2 +1,4 @@
 /target
-src/bin/test*.rs
+**/*.rs.bk
+Cargo.lock
+/input
