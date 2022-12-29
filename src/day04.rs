@@ -1,7 +1,4 @@
-use aoc2022::utils;
-use std::fs::read_to_string;
-
-const DAY: &str = "day04";
+use aoc_runner_derive::aoc;
 
 fn section_tuple(inp: &str) -> (i32, i32) {
     let sections: Vec<&str> = inp.split('-').collect();
@@ -16,6 +13,7 @@ fn contains(left: (i32, i32), right: (i32, i32)) -> bool {
     right.0 >= left.0 && right.1 <= left.1
 }
 
+#[aoc(day4, part1)]
 fn part1(content: &str) -> i32 {
     content
         .lines()
@@ -26,6 +24,7 @@ fn part1(content: &str) -> i32 {
             (contains(left, right) || contains(right, left)) as i32
         })
         .sum()
+    // 453
 }
 
 fn overlap(left: (i32, i32), right: (i32, i32)) -> bool {
@@ -36,6 +35,7 @@ fn overlap(left: (i32, i32), right: (i32, i32)) -> bool {
         || (left.1 > right.1 && (left.0 >= right.0 && left.0 <= right.1))
 }
 
+#[aoc(day4, part2)]
 fn part2(content: &str) -> i32 {
     content
         .lines()
@@ -46,12 +46,7 @@ fn part2(content: &str) -> i32 {
             (overlap(left, right)) as i32
         })
         .sum()
-}
-
-fn main() {
-    let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
-    println!("part1 {}", part1(&content)); // 453
-    println!("part2 {}", part2(&content)); // 919
+    // 919
 }
 
 #[cfg(test)]
@@ -59,15 +54,21 @@ mod tests {
 
     use super::*;
 
+    const INPUT: &str = "2-4,6-8
+2-3,4-5
+5-7,7-9
+2-8,3-7
+6-6,4-6
+2-6,4-8
+";
+
     #[test]
     fn test_part_1() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part1(&content), 2);
+        assert_eq!(part1(&INPUT), 2);
     }
 
     #[test]
     fn test_part_2() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part2(&content), 4);
+        assert_eq!(part2(&INPUT), 4);
     }
 }

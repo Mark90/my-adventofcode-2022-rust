@@ -1,7 +1,6 @@
-use aoc2022::utils;
-use std::{collections::HashSet, fs::read_to_string};
+use aoc_runner_derive::aoc;
 
-const DAY: &str = "day14";
+use std::collections::HashSet;
 
 fn parse_grid(content: &str) -> HashSet<(i32, i32)> {
     let mut grid: HashSet<(i32, i32)> = HashSet::new();
@@ -28,6 +27,7 @@ fn parse_grid(content: &str) -> HashSet<(i32, i32)> {
     grid
 }
 
+#[aoc(day14, part1)]
 fn part1(content: &str) -> i32 {
     let mut grid = parse_grid(content);
 
@@ -78,8 +78,10 @@ fn part1(content: &str) -> i32 {
     }
 
     blocks_settled
+    // 799
 }
 
+#[aoc(day14, part2)]
 fn part2(content: &str) -> i32 {
     // Takes a few seconds to complete because of the HashSet grid.
     // In hindsight using a set of coordinates is a bad idea; while it provides instant lookups, there are also
@@ -125,28 +127,24 @@ fn part2(content: &str) -> i32 {
     }
 
     blocks_settled
-}
-
-fn main() {
-    let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
-    println!("part1 {}", part1(&content)); // 799
-    println!("part2 {}", part2(&content)); // 29076
+    // 29076
 }
 
 #[cfg(test)]
 mod tests {
 
     use super::*;
+    const INPUT: &str = "498,4 -> 498,6 -> 496,6
+503,4 -> 502,4 -> 502,9 -> 494,9
+";
 
     #[test]
     fn test_part_1() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part1(&content), 24);
+        assert_eq!(part1(&INPUT), 24);
     }
 
     #[test]
     fn test_part_2() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part2(&content), 93);
+        assert_eq!(part2(&INPUT), 93);
     }
 }

@@ -1,10 +1,6 @@
-use aoc2022::utils;
-use std::{
-    collections::{BinaryHeap, HashMap, HashSet},
-    fs::read_to_string,
-};
+use aoc_runner_derive::aoc;
 
-const DAY: &str = "day12";
+use std::collections::{BinaryHeap, HashMap, HashSet};
 
 fn get_neighbor(position: &(i32, i32), direction: i32) -> (i32, i32) {
     match direction {
@@ -116,6 +112,7 @@ fn a_star<H: Fn((i32, i32)) -> i32>(
     None
 }
 
+#[aoc(day12, part1)]
 fn part1(content: &str) -> i32 {
     // Parse the input
     let mut square_heights: HashMap<(i32, i32), i32> = HashMap::new();
@@ -148,8 +145,10 @@ fn part1(content: &str) -> i32 {
     // Use A* to find shortest path from S to E
     let shortest_path = a_star(start, goal, heuristic, width, height, &square_heights).unwrap();
     shortest_path.len() as i32 - 1
+    // 425
 }
 
+#[aoc(day12, part2)]
 fn part2(content: &str) -> i32 {
     // Parse the input, this time keeping an array of all possible start squares
     let mut square_heights: HashMap<(i32, i32), i32> = HashMap::new();
@@ -193,28 +192,27 @@ fn part2(content: &str) -> i32 {
     }
 
     overall_shortest_path_length
-}
-
-fn main() {
-    let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
-    println!("part1 {}", part1(&content)); // 425
-    println!("part2 {}", part2(&content)); // 418
+    // 418
 }
 
 #[cfg(test)]
 mod tests {
 
     use super::*;
+    const INPUT: &str = "Sabqponm
+abcryxxl
+accszExk
+acctuvwj
+abdefghi
+";
 
     #[test]
     fn test_part_1() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part1(&content), 31);
+        assert_eq!(part1(&INPUT), 31);
     }
 
     #[test]
     fn test_part_2() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part2(&content), 29);
+        assert_eq!(part2(&INPUT), 29);
     }
 }

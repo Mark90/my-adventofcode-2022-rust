@@ -1,7 +1,6 @@
-use aoc2022::utils;
-use std::{collections::HashMap, fs::read_to_string};
+use aoc_runner_derive::aoc;
 
-const DAY: &str = "day05";
+use std::collections::HashMap;
 
 fn parse_stacks(input: &str) -> HashMap<&str, Vec<&str>> {
     let mut stacks: HashMap<&str, Vec<&str>> = HashMap::new();
@@ -72,34 +71,40 @@ fn solve_it(content: &str, part1: bool) -> String {
     result
 }
 
+#[aoc(day5, part1)]
 fn part1(content: &str) -> String {
     solve_it(content, true)
+    // SHMSDGZVC
 }
 
+#[aoc(day5, part2)]
 fn part2(content: &str) -> String {
     solve_it(content, false)
-}
-
-fn main() {
-    let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
-    println!("part1 {}", part1(&content)); // SHMSDGZVC
-    println!("part2 {}", part2(&content)); // VRZGHDFBQ
+    // VRZGHDFBQ
 }
 
 #[cfg(test)]
 mod tests {
 
     use super::*;
+    const INPUT: &str = "    [D]
+[N] [C]
+[Z] [M] [P]
+ 1   2   3
+
+move 1 from 2 to 1
+move 3 from 1 to 3
+move 2 from 2 to 1
+move 1 from 1 to 2
+";
 
     #[test]
     fn test_part_1() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part1(&content), "CMZ");
+        assert_eq!(part1(&INPUT), "CMZ");
     }
 
     #[test]
     fn test_part_2() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part2(&content), "MCD");
+        assert_eq!(part2(&INPUT), "MCD");
     }
 }

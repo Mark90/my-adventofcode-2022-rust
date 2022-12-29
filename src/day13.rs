@@ -1,9 +1,8 @@
-use aoc2022::utils;
-use std::{cmp::Ordering, fs::read_to_string};
+use aoc_runner_derive::aoc;
 
-use crate::Item::*;
+use std::cmp::Ordering;
 
-const DAY: &str = "day13";
+use Item::*;
 
 #[derive(Debug, Clone, PartialEq)]
 enum Item {
@@ -88,6 +87,7 @@ fn parse_packet(raw_packet_line: &str) -> Vec<Item> {
     result
 }
 
+#[aoc(day13, part1)]
 fn part1(content: &str) -> i32 {
     // parse the input into pairs
     let mut pairs: Vec<(Vec<Item>, Vec<Item>)> = Vec::new();
@@ -109,8 +109,10 @@ fn part1(content: &str) -> i32 {
     }
 
     sum_of_correct_pair_indices
+    // 6076
 }
 
+#[aoc(day13, part2)]
 fn part2(content: &str) -> i32 {
     // Parse the input packets
     let mut packets: Vec<Vec<Item>> = Vec::new();
@@ -139,6 +141,7 @@ fn part2(content: &str) -> i32 {
     let p2 = packets.iter().position(|p| p == &divider2).unwrap() + 1;
 
     (p1 * p2) as i32
+    // 24805
 }
 
 fn in_right_order(left: Vec<Item>, right: Vec<Item>) -> Option<bool> {
@@ -194,12 +197,6 @@ fn in_right_order(left: Vec<Item>, right: Vec<Item>) -> Option<bool> {
     }
 }
 
-fn main() {
-    let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
-    println!("part1 {}", part1(&content)); // 6076
-    println!("part2 {}", part2(&content)); // 24805
-}
-
 #[cfg(test)]
 mod tests {
 
@@ -207,16 +204,39 @@ mod tests {
 
     use super::*;
 
+    const INPUT: &str = "[1,1,3,1,1]
+[1,1,5,1,1]
+
+[[1],[2,3,4]]
+[[1],4]
+
+[9]
+[[8,7,6]]
+
+[[4,4],4,4]
+[[4,4],4,4,4]
+
+[7,7,7,7]
+[7,7,7]
+
+[]
+[3]
+
+[[[]]]
+[[]]
+
+[1,[2,[3,[4,[5,6,7]]]],8,9]
+[1,[2,[3,[4,[5,6,0]]]],8,9]
+";
+
     #[test]
     fn test_part_1() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part1(&content), 13);
+        assert_eq!(part1(&INPUT), 13);
     }
 
     #[test]
     fn test_part_2() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part2(&content), 140);
+        assert_eq!(part2(&INPUT), 140);
     }
 
     #[test]

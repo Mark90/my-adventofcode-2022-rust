@@ -1,7 +1,6 @@
-use aoc2022::utils;
-use std::{collections::HashSet, fs::read_to_string};
+use aoc_runner_derive::aoc;
 
-const DAY: &str = "day06";
+use std::collections::HashSet;
 
 fn get_start_marker(content: &str, marker_size: usize) -> i32 {
     let chars = content
@@ -21,18 +20,17 @@ fn get_start_marker(content: &str, marker_size: usize) -> i32 {
     }
     unreachable!("No solution");
 }
+
+#[aoc(day6, part1)]
 fn part1(content: &str) -> i32 {
     get_start_marker(content, 4)
+    // 1538
 }
 
+#[aoc(day6, part2)]
 fn part2(content: &str) -> i32 {
     get_start_marker(content, 14)
-}
-
-fn main() {
-    let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
-    println!("part1 {}", part1(&content)); // 1538
-    println!("part2 {}", part2(&content)); // 2315
+    // 2315
 }
 
 #[cfg(test)]
@@ -40,15 +38,15 @@ mod tests {
 
     use super::*;
 
+    const INPUT: &str = "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw";
+
     #[test]
     fn test_part_1() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part1(&content), 11);
+        assert_eq!(part1(&INPUT), 11);
     }
 
     #[test]
     fn test_part_2() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part2(&content), 26);
+        assert_eq!(part2(&INPUT), 26);
     }
 }

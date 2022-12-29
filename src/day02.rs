@@ -1,7 +1,4 @@
-use aoc2022::utils;
-use std::fs::read_to_string;
-
-const DAY: &str = "day02";
+use aoc_runner_derive::aoc;
 
 fn get_score(choice: &str) -> i32 {
     match choice {
@@ -26,6 +23,7 @@ fn game_outcome_score(their_score: i32, our_score: i32) -> i32 {
     return 0;
 }
 
+#[aoc(day2, part1)]
 fn part1(content: &str) -> i32 {
     let mut total_score = 0i32;
     for line in content.lines() {
@@ -34,9 +32,10 @@ fn part1(content: &str) -> i32 {
         let [their_score, our_score] = [get_score(their_shape), get_score(our_shape)];
         total_score += our_score + game_outcome_score(their_score, our_score);
     }
-    return total_score;
+    return total_score; // 14297
 }
 
+#[aoc(day2, part2)]
 fn part2(content: &str) -> i32 {
     let mut score = 0i32;
     for line in content.lines() {
@@ -63,13 +62,7 @@ fn part2(content: &str) -> i32 {
         };
         score += our_score;
     }
-    return score;
-}
-
-fn main() {
-    let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
-    println!("part1 {}", part1(&content)); // 14297
-    println!("part2 {}", part2(&content)); // 10498
+    return score; // 10498
 }
 
 #[cfg(test)]
@@ -77,15 +70,17 @@ mod tests {
 
     use super::*;
 
+    const INPUT: &str = "A Y
+B X
+C Z";
+
     #[test]
     fn test_part_1() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part1(&content), 15);
+        assert_eq!(part1(&INPUT), 15);
     }
 
     #[test]
     fn test_part_2() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part2(&content), 12);
+        assert_eq!(part2(&INPUT), 12);
     }
 }

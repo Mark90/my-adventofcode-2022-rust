@@ -1,8 +1,6 @@
-use aoc2022::utils;
-use std::fmt;
-use std::fs::read_to_string;
+use aoc_runner_derive::aoc;
 
-const DAY: &str = "day11";
+use std::fmt;
 
 #[derive(Debug)]
 enum Operator {
@@ -142,6 +140,7 @@ fn monkey_business(monkeys: &mut [Monkey], combined_modulo: u64) {
     }
 }
 
+#[aoc(day11, part1)]
 fn part1(content: &str) -> u64 {
     let mut monkeys = get_monkeys_from_input(content);
     let mut round = 0;
@@ -157,8 +156,10 @@ fn part1(content: &str) -> u64 {
     item_inspections.sort();
     let highest = &item_inspections[item_inspections.len() - 2..];
     highest[0] as u64 * highest[1] as u64
+    // 58322
 }
 
+#[aoc(day11, part2)]
 fn part2(content: &str) -> u64 {
     let mut monkeys = get_monkeys_from_input(content);
     let combined_modulo: u64 = monkeys.iter().map(|m| m.test_value).product();
@@ -175,12 +176,7 @@ fn part2(content: &str) -> u64 {
     item_inspections.sort();
     let highest = &item_inspections[item_inspections.len() - 2..];
     highest[0] as u64 * highest[1] as u64
-}
-
-fn main() {
-    let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
-    println!("part1 {}", part1(&content)); // 58322
-    println!("part2 {}", part2(&content)); // 13937702909
+    // 13937702909
 }
 
 #[cfg(test)]
@@ -188,15 +184,42 @@ mod tests {
 
     use super::*;
 
+    const INPUT: &str = "Monkey 0:
+  Starting items: 79, 98
+  Operation: new = old * 19
+  Test: divisible by 23
+    If true: throw to monkey 2
+    If false: throw to monkey 3
+
+Monkey 1:
+  Starting items: 54, 65, 75, 74
+  Operation: new = old + 6
+  Test: divisible by 19
+    If true: throw to monkey 2
+    If false: throw to monkey 0
+
+Monkey 2:
+  Starting items: 79, 60, 97
+  Operation: new = old * old
+  Test: divisible by 13
+    If true: throw to monkey 1
+    If false: throw to monkey 3
+
+Monkey 3:
+  Starting items: 74
+  Operation: new = old + 3
+  Test: divisible by 17
+    If true: throw to monkey 0
+    If false: throw to monkey 1
+";
+
     #[test]
     fn test_part_1() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part1(&content), 10605u64);
+        assert_eq!(part1(&INPUT), 10605u64);
     }
 
     #[test]
     fn test_part_2() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part2(&content), 2713310158u64);
+        assert_eq!(part2(&INPUT), 2713310158u64);
     }
 }

@@ -1,7 +1,6 @@
-use aoc2022::utils;
-use std::{collections::HashSet, fs::read_to_string};
+use aoc_runner_derive::aoc;
+use std::collections::HashSet;
 
-const DAY: &str = "day09";
 const PART2_TAILSIZE: usize = 9;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -44,6 +43,7 @@ fn move_right(head: &mut Coord) {
     head.x += 1;
 }
 
+#[aoc(day9, part1)]
 fn part1(content: &str) -> i32 {
     let mut head = Coord { x: 0, y: 0 };
     let mut tail = Coord { x: 0, y: 0 };
@@ -69,6 +69,7 @@ fn part1(content: &str) -> i32 {
     }
 
     visited.len() as i32
+    // 6494
 }
 
 fn move_tail_to_tail(tails: &mut [Coord; PART2_TAILSIZE], tail_index: usize) {
@@ -77,6 +78,7 @@ fn move_tail_to_tail(tails: &mut [Coord; PART2_TAILSIZE], tail_index: usize) {
     move_tail_to_head(&head, &mut tail);
 }
 
+#[aoc(day9, part2)]
 fn part2(content: &str) -> i32 {
     let mut head = Coord { x: 0, y: 0 };
     let mut tails = [Coord { x: 0, y: 0 }; PART2_TAILSIZE];
@@ -105,12 +107,7 @@ fn part2(content: &str) -> i32 {
     }
 
     visited.len() as i32
-}
-
-fn main() {
-    let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
-    println!("part1 {}", part1(&content)); // 6494
-    println!("part2 {}", part2(&content)); // 2691
+    // 2691
 }
 
 #[cfg(test)]
@@ -118,10 +115,19 @@ mod tests {
 
     use super::*;
 
+    const INPUT: &str = "R 4
+U 4
+L 3
+D 1
+R 4
+D 1
+L 5
+R 2
+";
+
     #[test]
     fn test_part_1() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part1(&content), 13);
+        assert_eq!(part1(&INPUT), 13);
     }
 
     #[test]
@@ -177,8 +183,7 @@ mod tests {
 
     #[test]
     fn test_part_2() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part2(&content), 1);
+        assert_eq!(part2(&INPUT), 1);
         let larger_sample = "R 5\nU 8\nL 8\nD 3\nR 17\nD 10\nL 25\nU 20\n";
         assert_eq!(part2(&larger_sample), 36);
     }
