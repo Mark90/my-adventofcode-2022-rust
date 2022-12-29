@@ -1,8 +1,6 @@
-use aoc2022::utils;
-use std::collections::HashSet;
-use std::fs::read_to_string;
+use aoc_runner_derive::aoc;
 
-const DAY: &str = "day03";
+use std::collections::HashSet;
 
 fn to_priority(c: char) -> i32 {
     if 'a' <= c && c <= 'z' {
@@ -12,6 +10,7 @@ fn to_priority(c: char) -> i32 {
     }
 }
 
+#[aoc(day3, part1)]
 fn part1(content: &str) -> i32 {
     content
         .lines()
@@ -23,8 +22,10 @@ fn part1(content: &str) -> i32 {
             to_priority(*s1.intersection(&s2).next().unwrap())
         })
         .sum()
+    // 8139
 }
 
+#[aoc(day3, part2)]
 fn part2(content: &str) -> i32 {
     let mut sacks = content
         .lines()
@@ -48,12 +49,7 @@ fn part2(content: &str) -> i32 {
     }
 
     result
-}
-
-fn main() {
-    let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
-    println!("part1 {}", part1(&content)); // 8139
-    println!("part2 {}", part2(&content)); // 2668
+    // 2668
 }
 
 #[cfg(test)]
@@ -61,15 +57,20 @@ mod tests {
 
     use super::*;
 
+    const INPUT: &str = "vJrwpWtwJgWrhcsFMMfFFhFp
+jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
+PmmdzqPrVvPwwTWBwg
+wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
+ttgJtRGJQctTZtZT
+CrZsJsPPZsGzwwsLwLmpwMDw";
+
     #[test]
     fn test_part_1() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part1(&content), 157);
+        assert_eq!(part1(&INPUT), 157);
     }
 
     #[test]
     fn test_part_2() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part2(&content), 70);
+        assert_eq!(part2(&INPUT), 70);
     }
 }

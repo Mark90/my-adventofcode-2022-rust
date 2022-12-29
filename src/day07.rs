@@ -1,9 +1,6 @@
-use aoc2022::utils;
-use std::fs::read_to_string;
+use aoc_runner_derive::aoc;
 
-use crate::Node::*;
-
-const DAY: &str = "day07";
+use Node::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 enum Node {
@@ -84,6 +81,7 @@ fn parse_terminal_output(content: &str) -> Node {
     root
 }
 
+#[aoc(day7, part1)]
 fn part1(content: &str) -> u32 {
     // Parse the file structure
     let root = parse_terminal_output(content);
@@ -98,8 +96,10 @@ fn part1(content: &str) -> u32 {
         .map(|(_dirname, dirsize)| *dirsize)
         .filter(|size| *size <= 100_000)
         .sum::<u32>()
+    // 919137
 }
 
+#[aoc(day7, part2)]
 fn part2(content: &str) -> u32 {
     let total_diskspace: u32 = 70000000;
     let required_free_diskspace: u32 = 30000000;
@@ -131,12 +131,7 @@ fn part2(content: &str) -> u32 {
         .unwrap();
 
     directory_to_remove.1
-}
-
-fn main() {
-    let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
-    println!("part1 {}", part1(&content)); // 919137
-    println!("part2 {}", part2(&content)); // 2877389
+    // 2877389
 }
 
 #[cfg(test)]
@@ -144,15 +139,37 @@ mod tests {
 
     use super::*;
 
+    const INPUT: &str = "$ cd /
+$ ls
+dir a
+14848514 b.txt
+8504156 c.dat
+dir d
+$ cd a
+$ ls
+dir e
+29116 f
+2557 g
+62596 h.lst
+$ cd e
+$ ls
+584 i
+$ cd ..
+$ cd ..
+$ cd d
+$ ls
+4060174 j
+8033020 d.log
+5626152 d.ext
+7214296 k";
+
     #[test]
     fn test_part_1() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part1(&content), 95437);
+        assert_eq!(part1(&INPUT), 95437);
     }
 
     #[test]
     fn test_part_2() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part2(&content), 24933642);
+        assert_eq!(part2(&INPUT), 24933642);
     }
 }

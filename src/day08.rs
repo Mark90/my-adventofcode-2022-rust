@@ -1,9 +1,6 @@
-use aoc2022::utils;
-use std::fs::read_to_string;
+use aoc_runner_derive::aoc;
 
 use std::collections::{HashMap, HashSet};
-
-const DAY: &str = "day08";
 
 fn check_row(
     y: usize,
@@ -64,6 +61,7 @@ fn check_column(
     }
 }
 
+#[aoc(day8, part1)]
 fn part1(content: &str) -> i32 {
     let mut all_trees: HashMap<(i32, i32), u32> = HashMap::new();
     let mut visible_trees: HashSet<(i32, i32)> = HashSet::new();
@@ -89,6 +87,7 @@ fn part1(content: &str) -> i32 {
     }
 
     visible_trees.len() as i32
+    // 1789
 }
 
 fn up(x: i32, y: i32, _n: i32) -> Option<(i32, i32)> {
@@ -156,6 +155,7 @@ fn scenic_score(all_trees: &HashMap<(i32, i32), u32>, gridsize: i32, x: i32, y: 
     .unwrap()
 }
 
+#[aoc(day8, part2)]
 fn part2(content: &str) -> i32 {
     let mut trees: HashMap<(i32, i32), u32> = HashMap::new();
     let gridsize = content.lines().next().unwrap().len() as i32;
@@ -173,12 +173,7 @@ fn part2(content: &str) -> i32 {
         }
     }
     max_score
-}
-
-fn main() {
-    let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
-    println!("part1 {}", part1(&content)); // 1789
-    println!("part2 {}", part2(&content)); // 314820
+    // 314820
 }
 
 #[cfg(test)]
@@ -186,15 +181,20 @@ mod tests {
 
     use super::*;
 
+    const INPUT: &str = "30373
+25512
+65332
+33549
+35390
+";
+
     #[test]
     fn test_part_1() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part1(&content), 21);
+        assert_eq!(part1(&INPUT), 21);
     }
 
     #[test]
     fn test_part_2() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part2(&content), 8);
+        assert_eq!(part2(&INPUT), 8);
     }
 }

@@ -1,7 +1,4 @@
-use aoc2022::utils;
-use std::fs::read_to_string;
-
-const DAY: &str = "day01";
+use aoc_runner_derive::aoc;
 
 fn parse(content: &str) -> Vec<i32> {
     let mut sums: Vec<i32> = Vec::new();
@@ -22,6 +19,7 @@ fn parse(content: &str) -> Vec<i32> {
     return sums;
 }
 
+#[aoc(day1, part2)]
 fn part2(content: &str) -> i32 {
     let mut sums: Vec<i32> = parse(content);
     sums.sort_by(|x, y| y.cmp(x));
@@ -29,16 +27,11 @@ fn part2(content: &str) -> i32 {
     return part2_sum;
 }
 
+#[aoc(day1, part1)]
 fn part1(content: &str) -> i32 {
     let sums: Vec<i32> = parse(content);
     let max_sum = sums.iter().max_by(|x, y| x.cmp(y)).unwrap();
     return *max_sum;
-}
-
-fn main() {
-    let content = read_to_string(utils::get_path(DAY, false)).expect("File not found");
-    println!("part1 {}", part1(&content));
-    println!("part2 {}", part2(&content));
 }
 
 #[cfg(test)]
@@ -46,15 +39,28 @@ mod tests {
 
     use super::*;
 
+    const INPUT: &str = "1000
+2000
+3000
+
+4000
+
+5000
+6000
+
+7000
+8000
+9000
+
+10000";
+
     #[test]
     fn test_part_1() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part1(&content), 24000);
+        assert_eq!(part1(&INPUT), 24000);
     }
 
     #[test]
     fn test_part_2() {
-        let content = read_to_string(utils::get_path(DAY, true)).expect("File not found");
-        assert_eq!(part2(&content), 45000);
+        assert_eq!(part2(&INPUT), 45000);
     }
 }
