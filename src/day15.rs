@@ -13,12 +13,12 @@ fn part1(content: &str) -> u32 {
     let mut xmin = i32::MAX;
     let mut xmax = i32::MIN;
     for line in content.lines() {
-        let hmwo = line.replace(",", "").replace(":", "").replace("=", " ");
-        let s: Vec<&str> = hmwo.split_whitespace().collect();
-        let sx = s[3].parse::<i32>().unwrap();
-        let sy = s[5].parse::<i32>().unwrap();
-        let bx = s[11].parse::<i32>().unwrap();
-        let by = s[13].parse::<i32>().unwrap();
+        let normalized = line.replace(",", "").replace(":", "").replace("=", " ");
+        let lineparts: Vec<&str> = normalized.split_whitespace().collect();
+        let sx = lineparts[3].parse::<i32>().unwrap();
+        let sy = lineparts[5].parse::<i32>().unwrap();
+        let bx = lineparts[11].parse::<i32>().unwrap();
+        let by = lineparts[13].parse::<i32>().unwrap();
         let dist_s_to_b = mhdist((sx, sy), (bx, by));
         xmin = xmin.min(sx - dist_s_to_b);
         xmax = xmax.max(sx + dist_s_to_b);
@@ -51,14 +51,124 @@ fn part1(content: &str) -> u32 {
 }
 
 #[aoc(day15, part2)]
-fn part2(content: &str) -> u32 {
-    0
+fn part2(content: &str) -> i64 {
+    // Build list of Sensors x,y,r where r is their 'radius' (MH distance to nearest beacon)
+    let mut sensors: Vec<(i32, i32, i32)> = Vec::new();
+
+    let mut xmax = i32::MIN;
+    for line in content.lines() {
+        let normalized = line.replace(",", "").replace(":", "").replace("=", " ");
+        let lineparts: Vec<&str> = normalized.split_whitespace().collect();
+        let sx = lineparts[3].parse::<i32>().unwrap();
+        let sy = lineparts[5].parse::<i32>().unwrap();
+        let bx = lineparts[11].parse::<i32>().unwrap();
+        let by = lineparts[13].parse::<i32>().unwrap();
+        let dist_s_to_b = mhdist((sx, sy), (bx, by));
+        xmax = xmax.max(sx + dist_s_to_b);
+        sensors.push((sx, sy, dist_s_to_b));
+    }
+    sensors.sort_by(|&a, &b| a.1.cmp(&b.1).then(a.0.cmp(&b.0)));
+
+    // Determine gridsize from input
+    let gridsize = if xmax > 100 { 4000000 } else { 20 };
+
+    let mut possible_beacons: HashSet<(i32, i32)> = HashSet::new();
+
+    // Traverse grid diagonally
+    for i in 0..=gridsize {
+        // Check the Y-axis; for each sensor find out the range it covers on this axis (if any)
+        let mut sensor_yranges: Vec<(i32, i32)> = sensors
+            .iter()
+            .filter_map(|sensor| get_yrange(sensor, i))
+            .collect();
+        // Sort and filter contained ranges
+        sensor_yranges.sort_by(|&a, &b| a.0.cmp(&b.0).then(a.1.cmp(&b.1)));
+        remove_contained_ranges(&mut sensor_yranges);
+
+        for j in 1..sensor_yranges.len() {
+            if (sensor_yranges[j].0 - sensor_yranges[j - 1].1) > 1 {
+                // Found a gap to previous range
+                let possible_beacon = (i as i32, sensor_yranges[j - 1].1 + 1);
+                if possible_beacons.contains(&possible_beacon) {
+                    return (possible_beacon.0 as i64) * 4000000_i64 + (possible_beacon.1 as i64);
+                }
+                possible_beacons.insert(possible_beacon);
+            }
+        }
+
+        // Check the X-axis; for each sensor find out the range it covers on this axis (if any)
+        let mut sensor_xranges: Vec<(i32, i32)> = sensors
+            .iter()
+            .filter_map(|sensor| get_xrange(sensor, i))
+            .collect();
+        // Sort and filter contained ranges
+        sensor_xranges.sort_by(|&a, &b| a.0.cmp(&b.0).then(a.1.cmp(&b.1)));
+        remove_contained_ranges(&mut sensor_xranges);
+
+        for j in 1..sensor_xranges.len() {
+            if (sensor_xranges[j].0 - sensor_xranges[j - 1].1) > 1 {
+                // Found a gap to previous range
+                let possible_beacon = (sensor_xranges[j - 1].1 + 1, i as i32);
+                if possible_beacons.contains(&possible_beacon) {
+                    return (possible_beacon.0 as i64) * 4000000_i64 + (possible_beacon.1 as i64);
+                }
+                possible_beacons.insert(possible_beacon);
+            }
+        }
+    }
+
+    panic!("Did not find the beacon");
+    // 13171855019123
+}
+
+fn with_index<T, F>(mut f: F) -> impl FnMut(&T) -> bool
+where
+    F: FnMut(usize, &T) -> bool,
+{
+    let mut i = 0;
+    move |item| (f(i, item), i += 1).0
+}
+
+fn remove_contained_ranges(ranges: &mut Vec<(i32, i32)>) {
+    // Assume the ranges are sorted on first lower, then upper boundary,
+    // filter out all ranges which are partially/fully contained in the previous range.
+    // Honestly not sure if this is 100% correct, but it seems to work \o/
+    let mut last_upper_bound = i32::MIN;
+    ranges.retain(with_index(|index, range: &(i32, i32)| {
+        if index == 0 || range.1 > last_upper_bound {
+            last_upper_bound = range.1;
+            true
+        } else {
+            false
+        }
+    }));
+}
+
+fn get_yrange(sensor: &(i32, i32, i32), x_axis: i32) -> Option<(i32, i32)> {
+    let (sensor_x, sensor_y, radius) = sensor;
+
+    let delta = radius - (x_axis - sensor_x).abs();
+    if delta.is_negative() {
+        return None;
+    }
+    Some((sensor_y - delta, sensor_y + delta))
+}
+
+fn get_xrange(sensor: &(i32, i32, i32), y: i32) -> Option<(i32, i32)> {
+    let (sensor_x, sensor_y, radius) = sensor;
+
+    let delta = radius - (y - sensor_y).abs();
+    if delta.is_negative() {
+        return None;
+    }
+    Some((sensor_x - delta, sensor_x + delta))
 }
 
 #[cfg(test)]
 mod tests {
 
     use super::*;
+
     const INPUT: &str = "Sensor at x=2, y=18: closest beacon is at x=-2, y=15
 Sensor at x=9, y=16: closest beacon is at x=10, y=16
 Sensor at x=13, y=2: closest beacon is at x=15, y=3
@@ -80,8 +190,22 @@ Sensor at x=20, y=1: closest beacon is at x=15, y=3
         assert_eq!(part1(&INPUT), 26);
     }
 
-    // #[test]
-    // fn test_part_2() {
-    //     assert_eq!(part2(&INPUT), 93);
-    // }
+    #[test]
+    fn test_part_2() {
+        assert_eq!(part2(&INPUT), 56000011);
+    }
+
+    #[test]
+    fn test_xrange_1() {
+        let sensor = (5, 5, 2);
+        assert_eq!(get_xrange(&sensor, 9), None);
+        assert_eq!(get_xrange(&sensor, 8), None);
+        assert_eq!(get_xrange(&sensor, 7), Some((5, 5)));
+        assert_eq!(get_xrange(&sensor, 6), Some((4, 6)));
+        assert_eq!(get_xrange(&sensor, 5), Some((3, 7)));
+        assert_eq!(get_xrange(&sensor, 4), Some((4, 6)));
+        assert_eq!(get_xrange(&sensor, 3), Some((5, 5)));
+        assert_eq!(get_xrange(&sensor, 2), None);
+        assert_eq!(get_xrange(&sensor, -1), None);
+    }
 }
